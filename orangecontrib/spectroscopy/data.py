@@ -787,7 +787,7 @@ class OPUSReader(FileFormat):
 class SPAReader(FileFormat, SpectralFileFormat):
     #based on code by Zack Gainsforth
 
-    EXTENSIONS = (".spa", ".SPA", ".srs")
+    EXTENSIONS = (".spa", ".SPA")
     DESCRIPTION = 'SPA'
 
     saved_sections = None
@@ -854,6 +854,26 @@ class SPAReader(FileFormat, SpectralFileFormat):
 
         data = np.array([data])
         return domvals, data, None
+
+
+class OmnicSeriesReader(FileFormat):
+
+    EXTENSIONS = (".srs", ".SRS")
+    DESCRIPTION = "Omnic"
+
+    def read(self):
+        import omnicreader
+        r = omnicreader.open_file(self.filename)
+        series = r.open_series()
+        info, dimensions = next(series)
+        data = []
+        for id, spectrum in series:
+            data.append(spectrum)
+        data = np.array(data)
+        domvals = np.linspace(info["first"], info["last"], info["n"])
+        domain = Orange.data.Domain([Orange.data.ContinuousVariable.make("%f" % f) for f in domvals], None)
+        # TODO add dimensions
+        return Orange.data.Table(domain, data)
 
 
 class GSFReader(FileFormat, SpectralFileFormat):

@@ -430,3 +430,9 @@ class TestSelectColumn(unittest.TestCase):
         np.testing.assert_equal(d.X,
                                 [[0.91213142, 0.89539732, 0.87925428, 0.86225812]])
         np.testing.assert_equal(getx(d), [6870, 6880, 6890, 6900])
+
+
+class TestOmnicSeries(unittest.TestCase):
+
+    def test_open(self):
+        data = Orange.data.Table("series0002.srs")
