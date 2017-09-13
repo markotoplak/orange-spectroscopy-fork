@@ -436,3 +436,5 @@ class TestOmnicSeries(unittest.TestCase):
 
     def test_open(self):
         data = Orange.data.Table("series0002.srs")
+        self.assertEqual(data[0]["title"], "Linked spectrum at 0.113 sec.")
+        self.assertAlmostEqual(data[0]["dimension1"], 0.112)

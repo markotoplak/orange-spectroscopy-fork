@@ -867,13 +867,51 @@ class OmnicSeriesReader(FileFormat):
         series = r.open_series()
         info, dimensions = next(series)
         data = []
-        for id, spectrum in series:
+        ids = []
+        for idd, spectrum in series:
             data.append(spectrum)
+            ids.append(idd)
+
+        # series annotations
+        metanames = {}
+        for idd in ids:
+            metanames.update(idd)
+        metanames = sorted(metanames)
+
+        metavals = [[] for _ in metanames]
+        for idd in ids:
+            for i, idk in enumerate(metanames):
+                metavals[i].append(idd.get(idk, None))
+
+        def first_non_none_type(l):
+            for a in l:
+                if l is not None:
+                    return type(a)
+
+        metatypes = [first_non_none_type(l) for l in metavals]
+
+        # add dimensions
+        metanames = ["dimension%d" % i for i, d in enumerate(dimensions)] + metanames
+        metavals = [np.linspace(d["first"], d["last"], d["n"]) for d in dimensions] + metavals
+        metatypes = [float for d in dimensions] + metatypes
+
         data = np.array(data)
         domvals = np.linspace(info["first"], info["last"], info["n"])
-        domain = Orange.data.Domain([Orange.data.ContinuousVariable.make("%f" % f) for f in domvals], None)
-        # TODO add dimensions
-        return Orange.data.Table(domain, data)
+        attributes = [Orange.data.ContinuousVariable.make("%f" % f) for f in domvals]
+        domain = Orange.data.Domain(attributes, None)
+        d = Orange.data.Table(domain, data)
+
+        # add metas
+        vartyped = {float: Orange.data.ContinuousVariable,
+                    int: Orange.data.ContinuousVariable,
+                    str: Orange.data.StringVariable}
+        metas = [vartyped[t].make(name=n) for n, t in zip(metanames, metatypes)]
+        domain = Orange.data.Domain(attributes, None, metas=metas)
+        d = d.transform(domain)
+        for i, l in enumerate(metavals):
+            d.metas[:, i] = l
+
+        return d
 
 
 class GSFReader(FileFormat, SpectralFileFormat):
