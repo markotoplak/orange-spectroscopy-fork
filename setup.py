@@ -139,6 +139,9 @@ if __name__ == '__main__':
             'extranormal3',
             'renishawWiRE>=0.1.8',
         ],
+        extras_require={
+            'omnic':  ["omnicreader==0.0.1"],
+        },
         entry_points=ENTRY_POINTS,
         keywords=KEYWORDS,
         namespace_packages=['orangecontrib'],
