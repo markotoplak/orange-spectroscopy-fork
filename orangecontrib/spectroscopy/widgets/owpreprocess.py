@@ -1501,6 +1501,7 @@ class SpectralPreprocess(OWWidget):
         reference_compat = Msg("Reference is not processed for compatibility with the loaded "
                                "workflow. New instances of this widget will also process "
                                "the reference input.")
+        uncommited_changes = Msg("There are uncommited changes.")
 
     def __init__(self):
         super().__init__()
@@ -1771,7 +1772,7 @@ class SpectralPreprocess(OWWidget):
 
     def on_modelchanged(self):
         self.show_preview()
-        self.commit()
+        self.invalidate()
 
     @Inputs.data
     @check_sql_input
@@ -1781,7 +1782,7 @@ class SpectralPreprocess(OWWidget):
 
     def handleNewSignals(self):
         self.show_preview(True)
-        self.unconditional_commit()
+        self.invalidate()
 
     def add_preprocessor(self, action):
         item = QStandardItem()
@@ -1831,6 +1832,13 @@ class SpectralPreprocess(OWWidget):
         self.Outputs.preprocessor.send(preprocessor)
 
         self.Outputs.preprocessed_data.send(data)
+
+        self.Warning.uncommited_changes.clear()
+
+    def invalidate(self):
+        if not self.autocommit:  # check autocommit to avoid warning flashing
+            self.Warning.uncommited_changes()
+        self.commit()
 
     def commit(self):
         # Do not run() apply immediately: delegate it to the event loop.
