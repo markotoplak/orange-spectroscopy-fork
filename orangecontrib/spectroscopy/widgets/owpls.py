@@ -54,6 +54,8 @@ class OWPLS(OWBaseLearner):
             domain = Domain(
                 [ContinuousVariable("coef")], metas=[StringVariable("name")])
             coefs = list(self.model.coefficients)
+            print(self.model.domain)
+            print(self.model.skl_model.)
             waves = [[attr.name] for attr in self.model.domain.attributes]
             coef_table = Table.from_numpy(domain, X=list(coefs), metas=waves)
             coef_table.name = "coefficients"
@@ -76,4 +78,4 @@ class OWPLS(OWBaseLearner):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    WidgetPreview(OWPLS).run(Table("housing"))
+    WidgetPreview(OWPLS).run(Table("titanicc"))
