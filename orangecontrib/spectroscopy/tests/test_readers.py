@@ -11,6 +11,7 @@ from orangecontrib.spectroscopy.data import getx, build_spec_table, SelectColumn
 from orangecontrib.spectroscopy.preprocess import features_with_interpolation
 from orangecontrib.spectroscopy.data import SPAReader, agilentMosaicIFGReader
 from orangecontrib.spectroscopy.data import NeaReaderGSF
+from orangecontrib.spectroscopy.data import OmnicSeriesReader
 
 try:
     import opusFC
@@ -435,6 +436,8 @@ class TestSelectColumn(unittest.TestCase):
 class TestOmnicSeries(unittest.TestCase):
 
     def test_open(self):
-        data = Orange.data.Table("series0002.srs")
+        reader = initialize_reader(OmnicSeriesReader,
+                                   "series0002.srs")
+        data = reader.read()
         self.assertEqual(data[0]["title"], "Linked spectrum at 0.113 sec.")
         self.assertAlmostEqual(data[0]["dimension1"], 0.112)

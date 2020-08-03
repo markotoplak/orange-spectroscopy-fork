@@ -787,7 +787,7 @@ class OPUSReader(FileFormat):
 class SPAReader(FileFormat, SpectralFileFormat):
     #based on code by Zack Gainsforth
 
-    EXTENSIONS = (".spa", ".SPA")
+    EXTENSIONS = (".spa", ".SPA", ".srs")
     DESCRIPTION = 'SPA'
 
     saved_sections = None
