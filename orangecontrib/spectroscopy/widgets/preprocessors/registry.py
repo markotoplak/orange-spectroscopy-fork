@@ -12,3 +12,5 @@ class PreprocessorEditorRegistry:
 
 
 preprocess_editors = PreprocessorEditorRegistry()
+
+emsc_editors = PreprocessorEditorRegistry()
