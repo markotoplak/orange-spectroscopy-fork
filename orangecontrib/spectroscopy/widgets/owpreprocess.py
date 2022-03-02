@@ -431,9 +431,6 @@ class SpectralPreprocess(OWWidget, ConcurrentWidgetMixin, openclass=True):
     preview_curves = settings.Setting(3)
     preview_n = settings.Setting(None, schema_only=True)
 
-    # compatibility for old workflows when reference was not processed
-    process_reference = settings.Setting(True, schema_only=True)
-
     curveplot = settings.SettingProvider(CurvePlot)
     curveplot_after = settings.SettingProvider(CurvePlot)
 
@@ -838,31 +835,12 @@ class SpectralPreprocessReference(SpectralPreprocess, openclass=True):
     class Inputs(SpectralPreprocess.Inputs):
         reference = Input("Reference", Orange.data.Table)
 
+    # compatibility for old workflows when reference was not processed
+    process_reference = settings.Setting(True, schema_only=True)
+
     @Inputs.reference
     def set_reference(self, reference):
         self.reference_data = reference
-
-
-class OWPreprocess(SpectralPreprocessReference):
-
-    name = "Preprocess Spectra"
-    description = "Construct a data preprocessing pipeline."
-    icon = "icons/preprocess.svg"
-    priority = 1000
-    replaces = ["orangecontrib.infrared.widgets.owpreproc.OWPreprocess",
-                "orangecontrib.infrared.widgets.owpreprocess.OWPreprocess"]
-
-    settings_version = 8
-
-    BUTTON_ADD_LABEL = "Add preprocessor..."
-    editor_registry = preprocess_editors
-
-    _max_preview_spectra = 100
-
-    preview_curves = settings.Setting(25)
-
-    # draw preview on top of current image
-    preview_on_image = False
 
     def create_outputs(self):
         self._reference_compat_warning()
@@ -901,6 +879,28 @@ class OWPreprocess(SpectralPreprocessReference):
         # if there are no preprocessors, return None instead of an empty list
         preprocessor = preprocess.preprocess.PreprocessorList(plist) if plist else None
         return data, preprocessor
+
+
+class OWPreprocess(SpectralPreprocessReference):
+
+    name = "Preprocess Spectra"
+    description = "Construct a data preprocessing pipeline."
+    icon = "icons/preprocess.svg"
+    priority = 1000
+    replaces = ["orangecontrib.infrared.widgets.owpreproc.OWPreprocess",
+                "orangecontrib.infrared.widgets.owpreprocess.OWPreprocess"]
+
+    settings_version = 8
+
+    BUTTON_ADD_LABEL = "Add preprocessor..."
+    editor_registry = preprocess_editors
+
+    _max_preview_spectra = 100
+
+    preview_curves = settings.Setting(25)
+
+    # draw preview on top of current image
+    preview_on_image = False
 
     @classmethod
     def migrate_preprocessor(cls, preprocessor, version):
