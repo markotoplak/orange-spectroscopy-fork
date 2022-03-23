@@ -127,9 +127,13 @@ class TestOWSpectra(WidgetTest):
         event = Mock()
         event.button.return_value = Qt.LeftButton
         mapToParent = vb.childGroup.mapToParent
-        event.pos.return_value = mapToParent(to_)
-        event.lastPos.return_value = mapToParent(from_)
-        event.buttonDownPos.return_value = mapToParent(from_)
+        mapToScene = vb.childGroup.mapToScene
+        event.pos.return_value = mapToParent(to_)  # pyqtgraph <= 0.12.3
+        event.scenePos.return_value = mapToScene(to_)  # pyqtgraph 0.12.4
+        event.lastPos.return_value = mapToParent(from_)  # pyqtgraph <= 0.12.3
+        event.lastScenePos.return_value = mapToScene(from_)  # pyqtgraph 0.12.4
+        event.buttonDownPos.return_value = mapToParent(from_)  # pyqtgraph <= 0.12.3
+        event.buttonDownScenePos.return_value = mapToScene(from_)  # pyqtgraph 0.12.4
         event.isFinish.return_value = True
         vb.mouseDragEvent(event)
 

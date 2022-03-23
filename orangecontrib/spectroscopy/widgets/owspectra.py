@@ -4,6 +4,7 @@ from collections import defaultdict
 import gc
 import random
 import warnings
+from distutils.version import LooseVersion
 from xml.sax.saxutils import escape
 
 from AnyQt.QtWidgets import QWidget, QGraphicsItem, QPushButton, QMenu, \
@@ -400,14 +401,6 @@ class InteractiveViewBox(ViewBox):
         self.position_tooltip()
         self.update_selection_tooltip(Qt.NoModifier)
 
-    def safe_update_scale_box(self, buttonDownPos, currentPos):
-        x, y = currentPos
-        if buttonDownPos[0] == x:
-            x += 1
-        if buttonDownPos[1] == y:
-            y += 1
-        self.updateScaleBox(buttonDownPos, Point(x, y))
-
     # noinspection PyPep8Naming,PyMethodOverriding
     def mouseDragEvent(self, ev, axis=None):
         if ev.button() & Qt.RightButton:
@@ -435,8 +428,15 @@ class InteractiveViewBox(ViewBox):
 
     def mouseMovedEvent(self, ev):  # not a Qt event!
         if self.action == ZOOMING and self.zoomstartpoint:
-            pos = self.mapFromView(self.mapSceneToView(ev))
-            self.updateScaleBox(self.zoomstartpoint, pos)
+            # pyqtgraph 0.12.4 changed input to updateScaleBox
+            # updateScaleBox receives scene coordinates since 0.12.4
+            if LooseVersion(pg.__version__) >= LooseVersion("0.12.4"):
+                start = self.zoomstartpoint
+                pos = ev
+            else:
+                start = self.mapFromView(self.mapSceneToView(self.zoomstartpoint))
+                pos = self.mapFromView(self.mapSceneToView(ev))
+            self.updateScaleBox(start, pos)
         if self.action in [SELECT, SELECT_SQUARE, SELECT_POLYGON] and self.current_selection:
             # ev is a position of the whole component (with axes)
             pos = self.childGroup.mapFromParent(self.mapFromView(self.mapSceneToView(ev)))
@@ -505,12 +505,11 @@ class InteractiveViewBox(ViewBox):
             ev.accept()
         if self.action == ZOOMING and ev.button() == Qt.LeftButton:
             if self.zoomstartpoint is None:
-                self.zoomstartpoint = ev.pos()
+                self.zoomstartpoint = ev.scenePos()
             else:
-                self.updateScaleBox(self.zoomstartpoint, ev.pos())
                 self.rbScaleBox.hide()
-                ax = QRectF(Point(self.zoomstartpoint), Point(ev.pos()))
-                ax = self.childGroup.mapRectFromParent(ax)
+                ax = QRectF(Point(self.zoomstartpoint), Point(ev.scenePos()))
+                ax = self.childGroup.mapRectFromScene(ax)
                 self.showAxRect(ax)
                 self.axHistoryPointer += 1
                 self.axHistory = self.axHistory[:self.axHistoryPointer] + [ax]
