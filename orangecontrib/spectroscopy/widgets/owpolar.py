@@ -396,6 +396,7 @@ def process_polar_abs(images, alpha, feature, map_x, map_y, invert, polangles, s
 
     return outputs, model, spectra, meta, vars[1]
 
+
 class OWPolar(OWWidget, ConcurrentWidgetMixin):
 
     # Widget's name as displayed in the canvas
@@ -440,7 +441,7 @@ class OWPolar(OWWidget, ConcurrentWidgetMixin):
     polangles = Setting([], packable=False)
     n_inputs = 0
 
-    feats: List[Variable] = Setting([])
+    feats: List[Variable] = ContextSetting([])
 
     class Warning(OWWidget.Warning):
         nodata = Msg("No useful data on input!")
