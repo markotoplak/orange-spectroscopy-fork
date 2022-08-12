@@ -19,7 +19,7 @@ from Orange.widgets.widget import OWWidget, Msg, Output, MultiInput
 from Orange.widgets import gui, settings
 
 from Orange.widgets.settings import \
-    Setting, ContextSetting, PerfectDomainContextHandler
+    Setting, ContextSetting, DomainContextHandler
 from Orange.widgets.utils.itemmodels import DomainModel
 from Orange.widgets.utils.concurrent import TaskState, ConcurrentWidgetMixin
 from Orange.widgets.data import owconcatenate
@@ -445,8 +445,8 @@ class OWPolar(OWWidget, ConcurrentWidgetMixin):
 
     autocommit = settings.Setting(False)
 
-    settingsHandler = PerfectDomainContextHandler(
-        match_values=PerfectDomainContextHandler.MATCH_VALUES_ALL
+    settingsHandler = DomainContextHandler(
+        match_values=DomainContextHandler.MATCH_VALUES_ALL
     )
 
     want_main_area = False
