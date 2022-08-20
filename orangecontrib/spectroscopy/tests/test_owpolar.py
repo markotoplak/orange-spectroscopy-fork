@@ -10,11 +10,11 @@ class TestOWPolar(WidgetTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.multifile = Orange.data.Table("polar\\4-angle-ftir_multifile.tab")
-        cls.in1 = Orange.data.Table("polar\\4-angle-ftir_multiin1.tab")
-        cls.in2 = Orange.data.Table("polar\\4-angle-ftir_multiin2.tab")
-        cls.in3 = Orange.data.Table("polar\\4-angle-ftir_multiin3.tab")
-        cls.in4 = Orange.data.Table("polar\\4-angle-ftir_multiin4.tab")
+        cls.multifile = Orange.data.Table("polar/4-angle-ftir_multifile.tab")
+        cls.in1 = Orange.data.Table("polar/4-angle-ftir_multiin1.tab")
+        cls.in2 = Orange.data.Table("polar/4-angle-ftir_multiin2.tab")
+        cls.in3 = Orange.data.Table("polar/4-angle-ftir_multiin3.tab")
+        cls.in4 = Orange.data.Table("polar/4-angle-ftir_multiin4.tab")
         cls.multifile_polar = Orange.data.Table("polar/4-angle-ftir_multifile_polar-results.tab")
         cls.multifile_model = Orange.data.Table("polar/4-angle-ftir_multifile_model-results.tab")
         cls.multiin_polar = Orange.data.Table("polar/4-angle-ftir_multiin_polar-results.tab")
