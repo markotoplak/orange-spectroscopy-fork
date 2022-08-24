@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python: [3.7]
+        python: [3.8]
         os: [ubuntu-18.04]
 
     steps:
