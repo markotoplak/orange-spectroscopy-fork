@@ -17,51 +17,46 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, macos-10.15, windows-2016]
-        python-version: [3.7, 3.8]
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        python-version: [3.8, 3.9]
         tox_env: [py-orange-released]
         experimental: [false]
         name: [Released]
         include:
-          - os: windows-2019
-            python-version: 3.8
-            tox_env: py-orange-released
-            experimental: true
-            name: Windows10
           - os: macos-11.0
             python-version: 3.8
             tox_env: py-orange-released
             experimental: true
             name: Big Sur
 
-          - os: windows-2016
-            python-version: 3.7
+          - os: windows-2019
+            python-version: 3.8
             tox_env: py-orange-oldest
             experimental: false
             name: Oldest
           - os: macos-10.15
-            python-version: 3.7
+            python-version: 3.8
             tox_env: py-orange-oldest
             name: Oldest
             experimental: false
-          - os: ubuntu-18.04
-            python-version: 3.7
+          - os: ubuntu-20.04
+            python-version: 3.8
             tox_env: py-orange-oldest
             name: Oldest
             experimental: false
 
-          - os: windows-2016
-            python-version: 3.8
+          - os: windows-2019
+            python-version: 3.9
             tox_env: py-orange-latest
             experimental: false
             name: Latest
           - os: macos-10.15
-            python-version: 3.8
+            python-version: 3.9
             tox_env: py-orange-latest
             experimental: false
             name: Latest
-          - os: ubuntu-18.04
-            python-version: 3.8
+          - os: ubuntu-20.04
+            python-version: 3.9
             tox_env: py-orange-latest
             experimental: false
             name: Latest
@@ -72,6 +67,13 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install linux system dependencies
+        if: |
+          matrix.os == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 libegl1-mesa libxcb-shape0
 
       - name: Install dependencies
         run: |
@@ -92,7 +94,7 @@ jobs:
       - name: Upload code coverage
         if: |
           matrix.python-version == '3.8' &&  
-          matrix.os == 'ubuntu-18.04' && 
+          matrix.os == 'ubuntu-20.04' && 
           matrix.tox_env == 'py-orange-released'
         run: |
           pip install codecov
