@@ -148,7 +148,8 @@ if __name__ == '__main__':
             'agilent-format>=0.4.5'
         ],
         extras_require={
-            'test': ['coverage']
+            'test': ['coverage'],
+            'doc': ['sphinx', 'recommonmark'],
         },
         entry_points=ENTRY_POINTS,
         keywords=KEYWORDS,
