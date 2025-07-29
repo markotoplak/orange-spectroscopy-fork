@@ -1802,6 +1802,11 @@ class OWHyper(OWWidget, SelectionOutputsMixin):
         self.imageplot.selection_changed.connect(self.draw_trace)
         self.imageplot.image_updated.connect(self.draw_trace)
 
+        from Orange.widgets.visualize.owscatterplotgraph import OWScatterPlotBase
+        self.scatterplot = OWScatterPlotBase(self)
+        splitter.addWidget(self.scatterplot.plot_widget)
+        self.imageplot.image_updated.connect(self.draw_scatterplot)
+
         self.line1 = MovableVline(position=self.lowlim, label="", report=self.curveplot)
         self.line1.sigMoved.connect(lambda v: setattr(self, "lowlim", v))
         self.line2 = MovableVline(position=self.highlim, label="", report=self.curveplot)
@@ -1833,6 +1838,47 @@ class OWHyper(OWWidget, SelectionOutputsMixin):
         self._setup_plot_parameters()
 
         gui.rubber(self.controlArea)
+
+    def draw_scatterplot(self):
+        self.scatterplot.reset_graph()
+        # scatterplot calls its setup_plot
+
+    def get_coordinates_data(self):
+        self.valid_data = None
+        if self.imageplot.data_points is None:
+            return None
+        self.valid_data = (np.isfinite(self.imageplot.data_points[:, 0])
+                           & np.isfinite(self.imageplot.data_points[:, 1]))
+        return self.imageplot.data_points.T[:, self.valid_data]
+
+    def is_continuous_color(self):
+        return True
+
+    def get_shape_labels(self):
+        return None
+
+    def get_shape_data(self):
+        return None
+
+    def get_size_data(self):
+        return None
+
+    def get_color_data(self):
+        return None
+
+    def get_color_labels(self):
+        return None
+
+    def get_subset_mask(self):
+        return None
+
+    def get_label_data(self):
+        return None
+
+    def get_tooltip(self, point_ids):
+        points = np.flatnonzero(self.valid_data)[np.asarray(point_ids, dtype=int)]
+
+
 
     def _setup_plot_parameters(self):
         parts_from_spectra = [SpectraParameterSetter.ANNOT_BOX,
