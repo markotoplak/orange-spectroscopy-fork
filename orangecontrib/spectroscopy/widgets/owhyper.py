@@ -1339,9 +1339,7 @@ class BasicImagePlot(QWidget, OWComponent, SelectionGroupMixin,
     def init_interface_data(self, data):
         self.init_attr_values(data)
 
-    def help_event(self, ev):
-        pos = self.plot.vb.mapSceneToView(ev.scenePos())
-        sel = self._points_at_pos(pos)
+    def tooltip_text(self, sel):
         prepared = []
         if sel is not None:
             data, vals, points = self.data[sel], self.data_values[sel], self.data_points[sel]
@@ -1351,7 +1349,12 @@ class BasicImagePlot(QWidget, OWComponent, SelectionGroupMixin,
                              if v not in [self.attr_x, self.attr_y]]
                 features = ['{} = {}'.format(attr.name, d[attr]) for attr in variables]
                 prepared.append("\n".join([basic] + features))
-        text = "\n\n".join(prepared)
+        return "\n\n".join(prepared)
+
+    def help_event(self, ev):
+        pos = self.plot.vb.mapSceneToView(ev.scenePos())
+        sel = self._points_at_pos(pos)
+        text = self.tooltip_text(sel)
         if text:
             text = ('<span style="white-space:pre">{}</span>'
                     .format(escape(text)))
@@ -1804,8 +1807,12 @@ class OWHyper(OWWidget, SelectionOutputsMixin):
 
         from Orange.widgets.visualize.owscatterplotgraph import OWScatterPlotBase
         self.scatterplot = OWScatterPlotBase(self)
+        self.scatterplot.plot_widget.getViewBox().setAspectLocked()
         splitter.addWidget(self.scatterplot.plot_widget)
         self.imageplot.image_updated.connect(self.draw_scatterplot)
+        for axis in ["bottom", "left"]:
+            axis_item = self.scatterplot.plot_widget.plotItem.getAxis(axis)
+            axis_item.show()
 
         self.line1 = MovableVline(position=self.lowlim, label="", report=self.curveplot)
         self.line1.sigMoved.connect(lambda v: setattr(self, "lowlim", v))
@@ -1864,7 +1871,12 @@ class OWHyper(OWWidget, SelectionOutputsMixin):
         return None
 
     def get_color_data(self):
-        return None
+        a = self.imageplot.data_values[self.valid_data][:, 0]
+        return a
+
+    def get_palette(self):
+        from Orange.widgets.utils.colorpalettes import ContinuousPalette
+        return ContinuousPalette("", "", np.array(colorcet.linear_bgy_10_95_c74) * 255)
 
     def get_color_labels(self):
         return None
@@ -1877,8 +1889,13 @@ class OWHyper(OWWidget, SelectionOutputsMixin):
 
     def get_tooltip(self, point_ids):
         points = np.flatnonzero(self.valid_data)[np.asarray(point_ids, dtype=int)]
+        sel = np.full(len(self.data), False)
+        sel[points] = True
+        return self.imageplot.tooltip_text(sel)
 
-
+    def selection_changed(self):
+        # called by scatterplot
+        pass
 
     def _setup_plot_parameters(self):
         parts_from_spectra = [SpectraParameterSetter.ANNOT_BOX,
